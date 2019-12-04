@@ -2,16 +2,33 @@
 using TechTalk.SpecFlow;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
+using Unity;
 
 namespace BerlinClock
 {
     [Binding]
     public class TheBerlinClockSteps
     {
-        private ITimeConverter berlinClock = new TimeConverter();
+        private readonly IUnityContainer container = new UnityContainer();
+        private ITimeConverter berlinClock;
         private String theTime;
 
-        
+        public TheBerlinClockSteps()
+        {
+            Initialize();
+
+            berlinClock = container.Resolve<ITimeConverter>();
+        }
+
+        private void Initialize()
+        {
+            container.RegisterType<IClockLine, ClockLine>();
+            container.RegisterType<IClockLineFactory, ClockLineFactory>();
+            container.RegisterType<IBerlinClockCalculator, BerlinClockCalculator>();
+            container.RegisterType<ITimeConverter, TimeConverter>();
+        }
+
+
         [When(@"the time is ""(.*)""")]
         public void WhenTheTimeIs(string time)
         {
